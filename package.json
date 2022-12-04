@@ -2,7 +2,9 @@
   "name": "dsutils",
   "packageManager": "yarn@3.2.3",
   "private": true,
-  "workspaces": [
-    "downloader/v*"
-  ]
+  "workspaces": {
+    "packages": [
+      "downloader/v*"
+    ]
+  }
 }
