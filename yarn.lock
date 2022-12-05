@@ -442,6 +442,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/downloadjs@npm:^1.4.3":
+  version: 1.4.3
+  resolution: "@types/downloadjs@npm:1.4.3"
+  checksum: d5b5e29399fdbb415f351fee64e7f7b3ddef0f251d2375ddaa0c16cd5c026f4a8dce1b4c76d05e019bc65c96f589d70f13512b44e54d568063fdefa0dbfd40c8
+  languageName: node
+  linkType: hard
+
 "@types/minimist@npm:^1.2.0":
   version: 1.2.2
   resolution: "@types/minimist@npm:1.2.2"
@@ -663,6 +670,13 @@ __metadata:
   bin:
     browserslist: cli.js
   checksum: 4af3793704dbb4615bcd29059ab472344dc7961c8680aa6c4bb84f05340e14038d06a5aead58724eae69455b8fade8b8c69f1638016e87e5578969d74c078b79
+  languageName: node
+  linkType: hard
+
+"byte-size@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "byte-size@npm:8.1.0"
+  checksum: 8395264954f0792b6a9500148473042c5a47932e06c673adbe584ef25e86d6c9bb1490ae275c4d83a41fcfd9b489b5522ee1627cc6f1414e29bd371839cf796e
   languageName: node
   linkType: hard
 
@@ -942,18 +956,30 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "downloader-v0@workspace:downloader/v0"
   dependencies:
+    "@types/downloadjs": ^1.4.3
     "@types/react": ^18.0.24
     "@types/react-dom": ^18.0.8
     "@vitejs/plugin-react": ^2.2.0
+    byte-size: ^8.1.0
+    downloadjs: ^1.4.7
     node-sass: ^8.0.0
     papercss: ^1.9.0
     react: ^18.2.0
     react-dom: ^18.2.0
+    react-loading-skeleton: ^3.1.0
+    recoil: ^0.7.6
     sass: ^1.56.1
     typescript: ^4.6.4
     vite: ^3.2.3
   languageName: unknown
   linkType: soft
+
+"downloadjs@npm:^1.4.7":
+  version: 1.4.7
+  resolution: "downloadjs@npm:1.4.7"
+  checksum: 4c546a28e7adcb1c290685f923add84e89582549f93502fa1b028194492522f716abb95a70f6ae464067a767e967806970d2a03e6262f8ccbcf3dd68e950d1da
+  languageName: node
+  linkType: hard
 
 "dsutils@workspace:.":
   version: 0.0.0-use.local
@@ -1417,6 +1443,13 @@ __metadata:
   version: 4.2.10
   resolution: "graceful-fs@npm:4.2.10"
   checksum: 3f109d70ae123951905d85032ebeae3c2a5a7a997430df00ea30df0e3a6c60cf6689b109654d6fdacd28810a053348c4d14642da1d075049e6be1ba5216218da
+  languageName: node
+  linkType: hard
+
+"hamt_plus@npm:1.0.2":
+  version: 1.0.2
+  resolution: "hamt_plus@npm:1.0.2"
+  checksum: af26ea32db03009019cc83dfa9411521a2fa16079443de1a502c9be46d8b3c975acda8ed93fc5750ef08d3186d35901e2d8cfe717dd54bea67b358601fa74e4c
   languageName: node
   linkType: hard
 
@@ -2324,6 +2357,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-loading-skeleton@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "react-loading-skeleton@npm:3.1.0"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 53d257c88e442e979fb9148ae826fc998a5a54c08a01e894395cf1ebb1e1c83e426f9c4884800e5564ba3308cf33e32d3abc75e07589ae0b48e4a2ed544fda2a
+  languageName: node
+  linkType: hard
+
 "react-refresh@npm:^0.14.0":
   version: 0.14.0
   resolution: "react-refresh@npm:0.14.0"
@@ -2395,6 +2437,22 @@ __metadata:
   dependencies:
     picomatch: ^2.2.1
   checksum: 1ced032e6e45670b6d7352d71d21ce7edf7b9b928494dcaba6f11fba63180d9da6cd7061ebc34175ffda6ff529f481818c962952004d273178acd70f7059b320
+  languageName: node
+  linkType: hard
+
+"recoil@npm:^0.7.6":
+  version: 0.7.6
+  resolution: "recoil@npm:0.7.6"
+  dependencies:
+    hamt_plus: 1.0.2
+  peerDependencies:
+    react: ">=16.13.1"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+  checksum: 2b31dd29a7e0b369bc986a16f7253006776845144684c9e38bb6760e4ea954c5d7dc682aaf88e815e69098b8dea3ff62b6fa4e6c156157a29d2d9cb824db1779
   languageName: node
   linkType: hard
 
