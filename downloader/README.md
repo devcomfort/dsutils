@@ -4,24 +4,20 @@
 
 # 버전별 기능
 
-## v0.0
+## v0 Re-Design
 
-기존의 영상 다운로더를 새롭게 디자인한 버전입니다.
-
-<div align="left">
-
-<img src="https://img.shields.io/badge/Svelte-FF3E00?style=flat-square&logo=Svelte&logoColor=white"/>
-<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=JavaScript&logoColor=white"/>
-<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=TypeScript&logoColor=white"/>
-<img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=HTML5&logoColor=white"/>
-<img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=CSS3&logoColor=white"/>
-
-</div>
+기존의 사이트를 새롭게 디자인하고, 비동기 기능을 추가한 업데이트입니다.
 
 ### 작업 목록
 
-- [ ] UI Framework로 `PaperCSS`를 도입하였습니다.
-- [ ] 비동기 처리 코드를 추가하였습니다.
+- [x] UI Framework로 `PaperCSS`를 도입하였습니다.
+- [x] 파일 용량 가져오기 기능을 추가하였습니다. 이제 미리 파일의 용량을 확인할 수 있습니다.
+- [ ] 비동기 다운로드 기능
+- [ ] URL 추가 후, 이름 수정 기능
+- [x] 중복된 URL 추가 방지 기능
+- [ ] 유효하지 않은 URL에 대한 URL 등록 취소 기능
+- [ ] textarea를 통한 복수 URL 한번에 올리기
+- [ ] `byte-size` 모듈용 d.ts 추가
 
 ## v1.0
 

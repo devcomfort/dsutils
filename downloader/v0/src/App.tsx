@@ -1,34 +1,91 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+// React 불러오기
+import { useState } from "react";
+// Recoil 불러오기
+import { useRecoilValue, useSetRecoilState } from "recoil";
+
+// 내부 선언 라이브러리
+import DownloadPanel from "./components/DownloadPanel";
+import URLHandler from "./assets/url";
+
+// 상태 관리 라이브러리, 타입 정보 가져오기
+import { URLs } from "./store";
+import type { URLStructure } from "./store";
+
+// 메인 레포에서 PaperCSS 가져오기 (수정된 css)
+import "../../../node_modules/papercss/dist/paper.css";
+import "./App.sass";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const urls = useRecoilValue(URLs);
+  const setURLs = useSetRecoilState(URLs);
+  const [url, setURL] = useState<string>("");
+  const [name, setName] = useState<string>("");
+
+  const addURL = (url: string, name?: string) => {
+    const _url: URLStructure = {
+      url,
+      name,
+      isWorking: false,
+    };
+
+    setURLs((values) => [...values, _url]);
+  };
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>강의 다운로더</h1>
+      <form
+        action="#"
+        onSubmit={(e) => {
+          e.preventDefault();
+
+          /** URL 호스트, 포트 정보 변경 */
+          const _url = URLHandler(url);
+
+          if (!_url) {
+            alert(`유효한 URL을 입력해주세요!`);
+            return false;
+          }
+
+          if (urls.filter(({ url }) => url === _url).length > 0) {
+            alert(`${_url}은 이미 추가된 URL 입니다!`);
+            return false;
+          }
+
+          addURL(_url, name || new URL(_url).pathname.split("/").at(-1));
+
+          setURL("");
+          setName("");
+
+          return false;
+        }}
+      >
+        <div className="col">
+          <input
+            type="text"
+            placeholder="다운로드 URL"
+            name="download-url"
+            className="download-url"
+            value={url}
+            onChange={(e) => setURL(e.target.value as string)}
+          />
+        </div>
+        <div className="col">
+          <input
+            type="text"
+            placeholder="파일 이름"
+            name="filename"
+            className="filename"
+            value={name}
+            onChange={(e) => setName(e.target.value as string)}
+          />
+          <input type="submit" className="submit" value={"추가"} />
+        </div>
+      </form>
+
+      <DownloadPanel urls={urls}></DownloadPanel>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
