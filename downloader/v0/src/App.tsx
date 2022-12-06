@@ -12,7 +12,7 @@ import { URLs } from "./store";
 import type { URLStructure } from "./store";
 
 // 메인 레포에서 PaperCSS 가져오기 (수정된 css)
-import "../../../node_modules/papercss/dist/paper.css";
+import "./assets/paper.css";
 import "./App.sass";
 
 function App() {
