@@ -1,14 +1,8 @@
-import { createContext, useState } from "react";
-import { atom, DefaultValue, selector } from "recoil";
+import { atom, selector } from "recoil";
 import { URLStructure } from "./assets/download_handler";
 
 const _URLs = atom<URLStructure[]>({
   key: "urls",
-  default: [],
-});
-
-export const activatedWidget = atom<boolean[]>({
-  key: "activated-widget",
   default: [],
 });
 
@@ -24,11 +18,5 @@ export const URLs = selector<URLStructure[]>({
   },
   set: ({ set }, newValue) => {
     set(_URLs, newValue);
-    set(
-      activatedWidget,
-      new Array(newValue instanceof DefaultValue ? 0 : newValue.length).fill(
-        false
-      )
-    );
   },
 });

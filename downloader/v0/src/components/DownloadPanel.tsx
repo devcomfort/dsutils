@@ -35,7 +35,7 @@ const DownloadPanel = () => {
       </Suspense>
       <input
         type="button"
-        value={"모두 다운로드"}
+        value={`모두 다운로드`}
         disabled={URLs.filter((u) => u.isFetching).length > 0}
         onClick={() => downloadAll()}
       />
