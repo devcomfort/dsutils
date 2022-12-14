@@ -1,52 +1,47 @@
-import { FC, useEffect, useState } from "react";
-import { useSetRecoilState } from "recoil";
+import React, { FC, useEffect, useState } from "react";
 
 import DownloadCSS from "./Download.module.sass";
 
 import Skeleton from "react-loading-skeleton";
 import "../../../../node_modules/react-loading-skeleton/dist/skeleton.css";
-
-import { URLStructure, URLs } from "../store";
-import { fetchMeta, download as _download } from "../assets/download_handler";
-
-// @ts-ignore
-import byteSize from "byte-size";
+import { URLStructure, fetcher } from "../assets/download_handler";
+import { URLs as URLsState } from "../store";
+import { useRecoilState } from "recoil";
+import { Suspense } from "react";
 
 const DownloadObject: FC<{ url: URLStructure }> = ({ url: URL }) => {
-  const { url, name, isWorking } = URL;
-  const _setURLs = useSetRecoilState(URLs);
+  const [URLs, setURLs] = useRecoilState(URLsState);
+  const { url, name } = URL;
 
   const [fileSize, setFileSize] = useState<string>("");
 
   const deleteURL = () =>
-    _setURLs((_urls) => _urls.filter((_url) => !(_url.url === url)));
+    setURLs((_urls) => _urls.filter((_url) => !(_url.url === url)));
 
-  const download = () => {
+  const download = () =>
     Promise.resolve(
-      _setURLs((value) =>
-        value.map((v) => ({ ...v, isWorking: v.url === url }))
+      setURLs((urls) =>
+        urls.map((u) => (u.url === url ? { ...u, isFetching: true } : u))
       )
     )
-      .then(() => _download(url, name))
+      .then(() => fetcher(url).download(name || ""))
       .then(() =>
-        _setURLs((value) => value.map((v) => ({ ...v, isWorking: false })))
+        setURLs((urls) =>
+          urls.map((u) => (u.url === url ? { ...u, isFetching: false } : u))
+        )
       );
-  };
 
   useEffect(() => {
-    fetchMeta(url)
-      .then((value) => {
-        const contentType = value.headers.get("content-type");
-        const contentLength = value.headers.get("content-length");
-
-        // 타입이 영상이 아닌 경우
-        if (!/(video)/.test(contentType || "")) {
+    Promise.all([fetcher(url).mimeType(), fetcher(url).dataSize()])
+      .then(([MIMEType, DataSize]) => {
+        if (!/(video)/.test(MIMEType)) {
           window.alert("유효하지 않은 영상 주소입니다!");
+          console.error("유효하지 않은 영상 주소입니다!");
           deleteURL();
           return;
         }
 
-        setFileSize(byteSize(contentLength).toString());
+        setFileSize(DataSize.toString());
       })
       .catch((err) => {
         console.error(err);
@@ -57,11 +52,12 @@ const DownloadObject: FC<{ url: URLStructure }> = ({ url: URL }) => {
   }, [url]);
 
   const _url = url.split("").splice(0, 52).join("");
+  const urlID = `collapsible-data-${btoa(url)}`;
 
   return (
     <div className="collapsible">
-      <input type="checkbox" id="collapsible-data" name="collapsible" />
-      <label htmlFor="collapsible-data" className="collapsible-data">
+      <input type="checkbox" id={urlID} name="collapsible" />
+      <label htmlFor={urlID} className={urlID}>
         {/* PaperCSS Collapsible 형식을 그대로 가져옴. */}
         <div className={DownloadCSS.grid_col}>
           <p>{name}</p>
@@ -77,19 +73,17 @@ const DownloadObject: FC<{ url: URLStructure }> = ({ url: URL }) => {
             type="button"
             value={"다운로드"}
             onClick={download}
-            disabled={isWorking}
+            disabled={URLs.filter((u) => u.isFetching).length > 0}
           />
         </div>
       </label>
       <div className="collapsible-body">
-        {fileSize !== "" ? (
+        <Suspense fallback={<Skeleton height={30}></Skeleton>}>
           <p>파일 용량: {fileSize}</p>
-        ) : (
-          <Skeleton height={30}></Skeleton>
-        )}
+        </Suspense>
       </div>
     </div>
   );
 };
 
-export default DownloadObject;
+export default React.memo(DownloadObject);

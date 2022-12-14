@@ -1,10 +1,11 @@
-import { FC } from "react";
 import DownloadObject from "./DownloadObject";
-import { URLStructure } from "../store";
+import { URLs as URLsStates } from "../store";
 import styles from "./Download.module.sass";
+import { useRecoilValue } from "recoil";
 
-const DownloadList: FC<{ urls: URLStructure[] }> = ({ urls }) => {
-  if (urls.length === 0)
+const DownloadList = () => {
+  const URLs = useRecoilValue(URLsStates);
+  if (URLs.length === 0)
     return (
       <>
         <p>입력 없음</p>
@@ -19,7 +20,7 @@ const DownloadList: FC<{ urls: URLStructure[] }> = ({ urls }) => {
         <p>삭제</p>
         <p>다운로드</p>
       </div>
-      {urls.map((url) => (
+      {URLs.map((url) => (
         <DownloadObject url={url} />
       ))}
     </>

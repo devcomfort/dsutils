@@ -1,39 +1,27 @@
 // React 불러오기
-import { useState } from "react";
+import { useContext, useState } from "react";
 // Recoil 불러오기
-import { useRecoilValue, useSetRecoilState } from "recoil";
 
 // 내부 선언 라이브러리
 import DownloadPanel from "./components/DownloadPanel";
 import URLHandler from "./assets/url";
 
-// 상태 관리 라이브러리, 타입 정보 가져오기
-import { URLs } from "./store";
-import type { URLStructure } from "./store";
-
 // 메인 레포에서 PaperCSS 가져오기 (수정된 css)
 import "./assets/paper.css";
 import "./App.sass";
+import { URLs as URLsState } from "./store";
+import { useRecoilState } from "recoil";
 
 function App() {
-  const urls = useRecoilValue(URLs);
-  const setURLs = useSetRecoilState(URLs);
   const [url, setURL] = useState<string>("");
   const [name, setName] = useState<string>("");
 
-  const addURL = (url: string, name?: string) => {
-    const _url: URLStructure = {
-      url,
-      name,
-      isWorking: false,
-    };
-
-    setURLs((values) => [...values, _url]);
-  };
+  const [URLs, setURLs] = useRecoilState(URLsState);
 
   return (
     <div className="App">
       <h1>강의 다운로더</h1>
+
       <form
         action="#"
         onSubmit={(e) => {
@@ -47,12 +35,19 @@ function App() {
             return false;
           }
 
-          if (urls.filter(({ url }) => url === _url).length > 0) {
+          if (URLs.map((u) => u.url).includes(_url)) {
             alert(`${_url}은 이미 추가된 URL 입니다!`);
             return false;
           }
 
-          addURL(_url, name || new URL(_url).pathname.split("/").at(-1));
+          setURLs([
+            ...URLs,
+            {
+              url: _url,
+              name: name,
+              isFetching: false,
+            },
+          ]);
 
           setURL("");
           setName("");
@@ -83,7 +78,7 @@ function App() {
         </div>
       </form>
 
-      <DownloadPanel urls={urls}></DownloadPanel>
+      <DownloadPanel />
     </div>
   );
 }
