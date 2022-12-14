@@ -1,56 +1,60 @@
 import _download from "downloadjs";
 // @ts-ignore
 import byteSize from "byte-size";
-import { URLStructure } from "../store";
 
-/** 데이터 헤더 가져오기 (HEAD) */
-export const fetchMeta = (url: string) => fetch(url, { method: "head" });
-/** 데이터 길이 값 가져오기 (as bytes, HEAD) */
-export const fetchDataSize = (url: string) =>
-  fetchMeta(url).then((_fetch) => {
-    const _size = _fetch.headers.get("content-length") || "0";
-    return {
-      size: () => _size,
-      toString: () => byteSize(_size.toString()),
-    };
-  });
-/** 데이터 요청 (GET) */
-export const fetchData = async (url: string) => fetch(url, { method: "GET" });
+export interface URLStructure {
+  /** 파일 이름 정보 (확장자 포함) */
+  name?: string;
+  /** URL 정보 */
+  url: string;
+  isFetching: boolean;
+}
 
-/** 파일 다운로드 */
-export const download = async (
-  url: string,
-  name: string | undefined = undefined
-) => {
-  const _fetched = await fetchData(url);
-  const _blob = await _fetched.blob();
+/** URL 메타 데이터 */
+export interface URLMeta {
+  /** 데이터 크기 (human readable) */
+  readonly dataSize: () => Promise<string>;
+  /** 데이터 크기 (정수를 문자로) */
+  readonly blob: () => Promise<Blob | File>;
+  /** MIME 타입 */
+  readonly mimeType: () => Promise<string>;
+  /** 파일 데이터 */
+  readonly download: (name: string) => Promise<any>;
+}
 
-  return _download(_blob, name ?? new URL(url).pathname.split("/").at(-1));
+/** URLProfile 반환형 */
+export type URLProfileType = URLMeta & {
+  /** 파일 URL */
+  url: () => string;
+  /** 파일 이름 */
+  name: () => string;
+  /** fetch 상태 */
+  isFetching: () => boolean;
 };
 
-export default function (urls: URLStructure[]) {
-  const fetchMetaByIndex = (index: number) => fetchMeta(urls[index].url);
-  const fetchMetaAll = () =>
-    Promise.allSettled(urls.map(({ url }) => fetchMeta(url)));
-
-  const fetchDataSizeByIndex = (index: number) =>
-    fetchDataSize(urls[index].url).then((v) => v.toString());
-  const fetchDataSizeAll = () =>
-    Promise.allSettled(urls.map(({ url: _url }) => fetchDataSize(_url)));
-
-  const fetchDataByIndex = async (index: number) => fetchData(urls[index].url);
-  const fetchDataAll = () =>
-    Promise.allSettled(urls.map(({ url }) => fetchData(url)));
-
-  const downloadAll = () =>
-    Promise.allSettled(urls.map(({ url, name }) => download(url, name)));
+/** 데이터 크기, 데이터 요청, 다운로드 동작 코드 */
+export const fetcher = (url: string): URLMeta => {
+  const _getMeta = () => fetch(url, { method: "head" });
+  const _getMIMEType = () =>
+    _getMeta().then((_fetched) => _fetched.headers.get("Content-Type") || "");
+  const _getDatasize = () =>
+    _getMeta()
+      .then((_fetched) => _fetched.headers.get("Content-Length") || "0")
+      .then((_dataSize) => ({
+        size: () => _dataSize,
+        toString: () => byteSize(_dataSize) as string,
+      }));
+  const _getData = () => fetch(url, { method: "GET" });
+  const _getBlob = () => _getData().then((_fetched) => _fetched.blob());
+  const download = (name: string) =>
+    _getBlob().then((_blob) =>
+      _download(_blob, name || new URL(url).pathname.split("/").at(-1) || "")
+    );
 
   return {
-    // 지정된 모든 URL의 메타 데이터 가져오기 (HEAD Method)
-    fetchMetaAll,
-    // 지정된 모든 URL의 실제 데이터 가져오기 (GET Method)
-    fetchDataAll,
-    fetchDataSizeAll,
-    downloadAll,
+    dataSize: () => _getDatasize().then((res) => res.toString()),
+    mimeType: _getMIMEType,
+    blob: _getBlob,
+    download,
   };
-}
+};
