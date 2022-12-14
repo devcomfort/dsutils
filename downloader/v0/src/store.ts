@@ -1,15 +1,34 @@
-import { atom } from "recoil";
+import { createContext, useState } from "react";
+import { atom, DefaultValue, selector } from "recoil";
+import { URLStructure } from "./assets/download_handler";
 
-export interface URLStructure {
-  /** 파일 이름 정보 (확장자 포함) */
-  name?: string;
-  /** URL 정보 */
-  url: string;
-  /** 파일 다운로드 상태 */
-  isWorking: boolean;
-}
-
-export const URLs = atom<URLStructure[]>({
+const _URLs = atom<URLStructure[]>({
   key: "urls",
   default: [],
+});
+
+export const activatedWidget = atom<boolean[]>({
+  key: "activated-widget",
+  default: [],
+});
+
+export const URLs = selector<URLStructure[]>({
+  key: "urls-handler",
+  get: ({ get }) => {
+    const __URLs = get(_URLs);
+    return __URLs.map((u) => ({
+      ...u,
+      name: !u.name ? new URL(u.url).pathname.split("/").at(-1) || "" : u.name,
+      isFetching: u.isFetching === undefined ? false : u.isFetching,
+    }));
+  },
+  set: ({ set }, newValue) => {
+    set(_URLs, newValue);
+    set(
+      activatedWidget,
+      new Array(newValue instanceof DefaultValue ? 0 : newValue.length).fill(
+        false
+      )
+    );
+  },
 });
