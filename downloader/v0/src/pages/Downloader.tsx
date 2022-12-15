@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 // 상태 데이터 호출
 import { URLs as URLsState } from "../store";
@@ -13,6 +14,8 @@ export default () => {
   const [name, setName] = useState<string>("");
 
   const [URLs, setURLs] = useRecoilState(URLsState);
+
+  const email = import.meta.env.VITE_PERSONAL_EMAIL;
 
   return (
     <>
@@ -78,7 +81,16 @@ export default () => {
 
       <br />
 
-      <input type="button" className="btn-small" value="메일 보내기" />
+      <a href={`mailto:${email}`} title={email}>
+        <input
+          type="button"
+          className="btn-small"
+          value={`메일 보내기 (${email})`}
+        />
+      </a>
+      <Link to="/help">
+        <input type="button" className="btn-small" value="도움말 보기" />
+      </Link>
     </>
   );
 };
