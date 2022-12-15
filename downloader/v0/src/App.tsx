@@ -1,6 +1,3 @@
-// React 불러오기
-import { useState } from "react";
-
 // React Router 호출
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -18,7 +15,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Downloader />}></Route>
-          <Route path="/help"></Route>
+          <Route path="/help" element={<Help />}></Route>
         </Routes>
       </BrowserRouter>
     </div>
