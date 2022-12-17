@@ -1,4 +1,6 @@
+# 참조: https://binux.tistory.com/30
+
 # Downloader v0
 # Paper CSS 제거
-**/paper.CSS
-**/paper.min.css
+**/paper.CSS linguist-detectable=false
+**/paper.min.css linguist-detectable=false
