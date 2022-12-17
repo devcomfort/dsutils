@@ -1,5 +1,1 @@
-# 참조: https://binux.tistory.com/30
-
-# Downloader v0
-# Paper CSS 제거
-*.css linguist-vendored
+downloader/v0/src/assets/paper.css linguist-detectable=false
