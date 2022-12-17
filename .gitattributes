@@ -2,4 +2,4 @@
 
 # Downloader v0
 # Paper CSS 제거
-*.css linguist-vendored
+downloader/v0/src/assets/paper.css linguist-vendored
