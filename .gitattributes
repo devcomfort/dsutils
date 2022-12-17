@@ -2,4 +2,4 @@
 
 # Downloader v0
 # Paper CSS 제거
-*.CSS linguist-detectable=false
+*.CSS linguist-vendored=false
