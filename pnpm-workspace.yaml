@@ -1,0 +1,3 @@
+packages:
+  # 강의 다운로더
+  - "downloader/**/*"
