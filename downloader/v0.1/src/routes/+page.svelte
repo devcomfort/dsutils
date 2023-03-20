@@ -1,6 +1,6 @@
 <script lang="ts">
-  // import formatURL from "urlfmt";
-  // import createFetchInstance from "download_handler";
+  import formatURL from "../lib/urlfmt";
+  import createFetchInstance from "../lib/download_handeler";
   import {
     Stack,
     Grid,
@@ -10,10 +10,10 @@
     Button,
     Notification,
     Paper,
+    ActionIcon,
   } from "@svelteuidev/core";
   import { useId } from "@svelteuidev/composables";
-  import { Link1, IdCard, Cross2 } from "radix-icons-svelte";
-  import isURL from "validator/lib/isURL";
+  import { Link1, IdCard, Cross2, Trash, Download } from "radix-icons-svelte";
 
   const useTextCenter = createStyles(() => {
     return {
@@ -39,12 +39,18 @@
   let filename: string = "";
 
   const addURL = () => {
-    if (!isURL(download_url)) return new Error(`URL 형식이 아닙니다.`);
+    const formatted_download_url = formatURL(download_url);
+    if (formatted_download_url instanceof Error) return formatted_download_url;
     if (URLProfiles.some((profile) => profile.url === download_url))
       return new Error(`이미 리스트에 추가된 리소스입니다.`);
 
-    URLProfiles = [...URLProfiles, { url: download_url, filename }];
+    URLProfiles = [...URLProfiles, { url: formatted_download_url, filename }];
+    download_url = "";
+    filename = "";
   };
+
+  const removeURL = (url: string) =>
+    (URLProfiles = URLProfiles.filter((profile) => profile.url !== url));
 
   const addErrorNotification = (err: Error) => {
     const uuid = useId();
@@ -117,6 +123,35 @@
         <Paper withBorder radius="lg">
           <Stack>
             <span>강의 URL 목록</span>
+            {#if URLProfiles.length > 0}
+              <Grid>
+                {#each URLProfiles as profile, index}
+                  <Grid.Col span={1}>{index + 1}</Grid.Col>
+                  <Grid.Col span={6}>
+                    {profile.url}
+                  </Grid.Col>
+                  <Grid.Col span={3}>{profile.filename}</Grid.Col>
+                  <Grid.Col span={1}>
+                    <ActionIcon
+                      on:click={() => {
+                        // TODO : 다운로드 로직 추가
+                      }}
+                    >
+                      <Download />
+                    </ActionIcon>
+                  </Grid.Col>
+                  <Grid.Col span={1}>
+                    <ActionIcon
+                      on:click={() => {
+                        removeURL(profile.url);
+                      }}
+                    >
+                      <Trash />
+                    </ActionIcon>
+                  </Grid.Col>
+                {/each}
+              </Grid>
+            {/if}
           </Stack>
         </Paper>
       </Grid.Col>
