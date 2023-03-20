@@ -1,4 +1,5 @@
 {
   "name": "dsutils",
+  "type": "module",
   "private": true
 }
