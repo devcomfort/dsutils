@@ -3,5 +3,3 @@ packages:
 
   # 강의 다운로더 (프로젝트)
   - "downloader/v*"
-  # 강의 다운로더 (라이브러리)
-  - "downloader/lib/*"
