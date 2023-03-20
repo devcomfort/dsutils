@@ -8,9 +8,12 @@
     createStyles,
     TextInput,
     Button,
+    Notification,
     Paper,
   } from "@svelteuidev/core";
-  import { Link1, IdCard } from "radix-icons-svelte";
+  import { useId } from "@svelteuidev/composables";
+  import { Link1, IdCard, Cross2 } from "radix-icons-svelte";
+  import isURL from "validator/lib/isURL";
 
   const useTextCenter = createStyles(() => {
     return {
@@ -25,13 +28,37 @@
     filename: string;
   }
 
+  interface ErrorStore {
+    id: PropertyKey;
+    obj: Error;
+  }
+
   let URLProfiles: URLProfile[] = [];
+  let ErrorList: ErrorStore[] = [];
   let download_url: string = "";
   let filename: string = "";
 
-  const addURL = () => URLProfiles.push({ url: download_url, filename });
+  const addURL = () => {
+    if (!isURL(download_url)) return new Error(`URL 형식이 아닙니다.`);
+    if (URLProfiles.some((profile) => profile.url === download_url))
+      return new Error(`이미 리스트에 추가된 리소스입니다.`);
 
-  $: console.log(URLProfiles);
+    URLProfiles = [...URLProfiles, { url: download_url, filename }];
+  };
+
+  const addErrorNotification = (err: Error) => {
+    const uuid = useId();
+    const newErrorProfile: ErrorStore = {
+      id: uuid,
+      obj: err,
+    };
+    const addError = () => (ErrorList = [...ErrorList, newErrorProfile]);
+    const removeError = () =>
+      (ErrorList = ErrorList.filter((error) => error.id == uuid));
+
+    addError();
+    setTimeout(removeError, 2000);
+  };
 
   $: ({ getStyles: textCenter } = useTextCenter());
 </script>
@@ -50,7 +77,10 @@
             <span>강의 URL 입력</span>
             <form
               on:submit|preventDefault|stopPropagation={(e) => {
-                addURL();
+                const response = addURL();
+                if (response instanceof Error) {
+                  return addErrorNotification(response);
+                }
               }}
             >
               <Grid>
@@ -93,3 +123,23 @@
     </Grid>
   </Stack>
 </Container>
+
+<Grid
+  override={{
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: "100%",
+    marginBottom: "$1",
+    marginRight: "$1",
+  }}
+>
+  {#each ErrorList as error}
+    <Grid.Col lg={9} md={6} />
+    <Grid.Col lg={3} md={6}>
+      <Notification icon={Cross2} color="red">
+        {error.obj.message}
+      </Notification>
+    </Grid.Col>
+  {/each}
+</Grid>
