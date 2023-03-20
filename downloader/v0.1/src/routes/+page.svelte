@@ -1,6 +1,6 @@
 <script lang="ts">
   import formatURL from "../lib/urlfmt";
-  import createFetchInstance from "../lib/download_handeler";
+  import createFetchInstance from "../lib/download_handler";
   import {
     Stack,
     Grid,
