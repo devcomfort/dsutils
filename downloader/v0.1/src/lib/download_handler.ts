@@ -8,7 +8,7 @@ interface InstanceOptions {
 }
 
 /**
- * 파일 이름 추출 함수
+ * 파일 이름 추출 함수 (요청 없는 파일 이름 추출)
  *
  * URL과 별도로 입력된 이름을 입력받아, 이름이 없다면 URL에서, 이름이 있다면 이름에서 파일 이름을 추출해주는 함수 (-> basename)
  */
@@ -18,6 +18,9 @@ const getFilename = (url: string, name: string): string => {
   return nameName ? nameName : urlName || "";
 };
 
+/**
+ * 파일 이름 추출 함수 (다운로드 시 사용, 더 정확한 파일 확장자 추론)
+ */
 const getBasename = async (
   url: string,
   name: string,
