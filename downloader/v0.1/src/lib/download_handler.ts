@@ -1,6 +1,6 @@
 import byteSize from "byte-size";
 import download from "downloadjs";
-import { fileTypeFromFile } from "file-type";
+import { fileTypeFromBuffer } from "file-type";
 import parseFilepath from "parse-filepath";
 import isURL from "./isurl";
 
@@ -36,55 +36,40 @@ const createFetchInstance = (opts: InstanceOptions) => {
     ) as Promise<`${number}`>;
   const sizeAsString = () => size().then((size) => byteSize(parseInt(size)));
 
-  const getFilenameFrom = async (
+  const getFilename = async (
     url: string,
-    name?: string
-  ): Promise<string> => {
-    const [filenameFromURL, filenameFromName] = [
-      parseFilepath(url),
-      parseFilepath(name || ""),
-    ];
-    const [urlExts, nameExts, actualMimeType] = await Promise.all([
-      fileTypeFromFile(url),
-      fileTypeFromFile(name || ""),
-      mimeType(),
-    ]);
+    name: string,
+    file: Blob | ArrayBuffer
+  ) => {
+    if (file instanceof Blob) file = await file.arrayBuffer();
+    const [urlMeta, nameMeta] = [url, name].map((obj) => parseFilepath(obj));
+    const inferencedMimeType = await fileTypeFromBuffer(file);
 
-    // 1. name이 입력되지 않음 -> URL의 타입과 이름을 기반으로 파일 이름 생성
-    if (!filenameFromURL)
-      return urlExts?.ext
-        ? `${filenameFromURL}.${urlExts.ext}`
-        : `${filenameFromURL}`;
+    // 1. 이름이 있을 땐 이름에서 이름을 가져오고
+    // 2. 이름이 없을 땐 URL에서 이름을 추출해오고
+    const filename = nameMeta.name.length > 0 ? nameMeta.name : urlMeta.name;
 
-    // 2. name이 입력되었으나 파일 확장자를 특정할 수 없음 -> 이름이 명확하다면 파일 확장자만 수정
-    if (!nameExts)
-      return urlExts?.ext
-        ? `${filenameFromURL}.${urlExts.ext}`
-        : `${filenameFromURL}`;
+    // 3. 확장자는 Blob 객체를 통해 추정하여 입력하되, 없다면 파일 이름에서 추출 시도, 파일 이름에서도 확장자를 추론할 수 없다면 파일 이름만 달아서 내보내기
+    const ext = inferencedMimeType?.ext || "";
 
-    // TODO : MIME 타입에서 확장자 추출하는 함수 또는 라이브러리 호출 추가
-    // TODO : 로직 마저 작성하기
-    // 1. name이 입력되지 않음.
-    //    -> URL의 Mime타입과 이름을 기반으로 파일 이름 생성
-    // 2. name이 입력되었으나 파일 확장자를 특정할 수 없음.
-    //    -> 이름이 명확하다면 파일 확장자만 수정
-    // 3. name이 입력되었으나 파일 확장자가 원본 파일이랑 다름.
-    //    -> 파일 확장자만 수정
+    return ext.length > 0 ? `${filename}.${ext}` : `${filename}`;
   };
 
   const get = () => fetch(opts.url, { method: "GET" });
   const blob = () => get().then((response) => response.blob());
-  const _download = (name?: string) =>
-    Promise.all([blob(), getFilenameFrom(opts.url, name)]).then(
-      ([blob, name]) => download(blob, name)
-    );
+  const _download = async (name?: string) => {
+    const _blob = await blob();
+    const filename = await getFilename(opts.url, name || "", _blob);
+    return download(_blob, filename);
+  };
 
+  // TODO : fileTypeFromBuffer, getFilename 호출에 의해 각각 fileTypeFromBuffer가 2번 호출됩니다.
+  // 중복 호출이므로 최적화를 권장합니다.
   const _downloadWithProgress = async (
     name: string = "",
     updater: (value: number) => void
   ) => {
     const _size = parseInt(await size()); // 총 데이터 크기 저장 (바이트 단위)
-    const _type = await mimeType(); // 데이터의 MIME Type 정보 저장
     let loaded = 0; // 로드 된 데이터 양 저장 (바이트 단위)
     let chunks: Uint8Array[]; // 다운로드 한 데이터 청크 별로 정리
 
@@ -117,13 +102,18 @@ const createFetchInstance = (opts: InstanceOptions) => {
           },
         });
 
-        return Promise.all(chunks).then(
-          (chunks) => new Blob(chunks, { type: _type })
+        const arrayBufferLike = chunks.reduce<number[]>(
+          (acc, cur) => [...acc, ...cur],
+          []
         );
+        const arrayBuffer = new Uint8Array(arrayBufferLike).buffer;
+        const mimeType = (await fileTypeFromBuffer(arrayBuffer))?.mime;
+        const blob = new Blob(chunks, { type: mimeType });
+
+        return blob;
       })
-      .then((blob) => {
-        const _name = name || new URL(opts.url).pathname.split("/").at(-1);
-        return download(blob, _name);
+      .then(async (blob) => {
+        return download(blob, await getFilename(opts.url, name || "", blob));
       });
   };
 
