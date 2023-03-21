@@ -7,7 +7,7 @@ const formatURL = (url: string) => {
   URLObject.host = "dcms.dongseo.ac.kr";
   URLObject.port = "";
 
-  return url.toString();
+  return URLObject.toString();
 };
 
 export default formatURL;
