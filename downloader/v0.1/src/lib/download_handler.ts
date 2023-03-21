@@ -1,6 +1,7 @@
 import byteSize from "byte-size";
 import download from "downloadjs";
 import { fileTypeFromFile } from "file-type";
+import parseFilepath from "parse-filepath";
 import isURL from "./isurl";
 
 interface InstanceOptions {
@@ -35,13 +36,33 @@ const createFetchInstance = (opts: InstanceOptions) => {
     ) as Promise<`${number}`>;
   const sizeAsString = () => size().then((size) => byteSize(parseInt(size)));
 
-  const getFilenameFrom = async (url: string, name?: string) => {
+  const getFilenameFrom = async (
+    url: string,
+    name?: string
+  ): Promise<string> => {
+    const [filenameFromURL, filenameFromName] = [
+      parseFilepath(url),
+      parseFilepath(name || ""),
+    ];
     const [urlExts, nameExts, actualMimeType] = await Promise.all([
       fileTypeFromFile(url),
       fileTypeFromFile(name || ""),
       mimeType(),
     ]);
 
+    // 1. name이 입력되지 않음 -> URL의 타입과 이름을 기반으로 파일 이름 생성
+    if (!filenameFromURL)
+      return urlExts?.ext
+        ? `${filenameFromURL}.${urlExts.ext}`
+        : `${filenameFromURL}`;
+
+    // 2. name이 입력되었으나 파일 확장자를 특정할 수 없음 -> 이름이 명확하다면 파일 확장자만 수정
+    if (!nameExts)
+      return urlExts?.ext
+        ? `${filenameFromURL}.${urlExts.ext}`
+        : `${filenameFromURL}`;
+
+    // TODO : MIME 타입에서 확장자 추출하는 함수 또는 라이브러리 호출 추가
     // TODO : 로직 마저 작성하기
     // 1. name이 입력되지 않음.
     //    -> URL의 Mime타입과 이름을 기반으로 파일 이름 생성
