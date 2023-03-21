@@ -1,12 +1,13 @@
 <script lang="ts">
   import formatURL from "../lib/urlfmt";
-  import createFetchInstance from "../lib/download_handler";
+  import createFetchInstance, { getFilename } from "../lib/download_handler";
   import {
     Stack,
     Grid,
     Container,
     createStyles,
     TextInput,
+    Text,
     Button,
     Notification,
     Paper,
@@ -14,6 +15,7 @@
   } from "@svelteuidev/core";
   import { useId } from "@svelteuidev/composables";
   import { Link1, IdCard, Cross2, Trash, Download } from "radix-icons-svelte";
+  import byteSize from "byte-size";
 
   const useTextCenter = createStyles(() => {
     return {
@@ -26,6 +28,7 @@
   interface URLProfile {
     url: string;
     filename: string;
+    sizeString: string;
   }
 
   interface ErrorStore {
@@ -38,15 +41,38 @@
   let download_url: string = "";
   let filename: string = "";
 
-  const addURL = () => {
+  /** 로딩 상태 */
+  let loading = false;
+
+  const addURL = async () => {
+    if (loading) return;
+
     const formatted_download_url = formatURL(download_url);
     if (formatted_download_url instanceof Error) return formatted_download_url;
     if (URLProfiles.some((profile) => profile.url === download_url))
       return new Error(`이미 리스트에 추가된 리소스입니다.`);
 
-    URLProfiles = [...URLProfiles, { url: formatted_download_url, filename }];
+    loading = true;
+
+    const _filename = getFilename(formatted_download_url, filename);
+
+    // TODO : 오류 잡아서 반환하는 로직 추가
+    const sizeString =
+      (await createFetchInstance({
+        url: formatted_download_url,
+      })?.sizeAsString()) || byteSize(0);
+
+    URLProfiles = [
+      ...URLProfiles,
+      {
+        url: download_url,
+        filename: _filename,
+        sizeString: sizeString,
+      },
+    ];
     download_url = "";
     filename = "";
+    loading = false;
   };
 
   const removeURL = (url: string) =>
@@ -82,8 +108,8 @@
           <Stack>
             <span>강의 URL 입력</span>
             <form
-              on:submit|preventDefault|stopPropagation={(e) => {
-                const response = addURL();
+              on:submit|preventDefault|stopPropagation={async (e) => {
+                const response = await addURL();
                 if (response instanceof Error) {
                   return addErrorNotification(response);
                 }
@@ -109,6 +135,7 @@
                     color={"#01c38d"}
                     ripple
                     override={{ width: "100%" }}
+                    {loading}
                     type="submit">추가하기</Button
                   >
                 </Grid.Col>
@@ -127,8 +154,8 @@
               <Grid>
                 {#each URLProfiles as profile, index}
                   <Grid.Col span={1}>{index + 1}</Grid.Col>
-                  <Grid.Col span={6}>
-                    {profile.url}
+                  <Grid.Col span={4}>
+                    <Text lineClamp={1}>{profile.url}</Text>
                   </Grid.Col>
                   <Grid.Col span={3}>{profile.filename}</Grid.Col>
                   <Grid.Col span={1}>
@@ -139,6 +166,9 @@
                     >
                       <Download />
                     </ActionIcon>
+                  </Grid.Col>
+                  <Grid.Col span={2}>
+                    <Text size={"sm"}>{profile.sizeString}</Text>
                   </Grid.Col>
                   <Grid.Col span={1}>
                     <ActionIcon
