@@ -2,6 +2,7 @@ import byteSize from "byte-size";
 import download from "downloadjs";
 import { fileTypeFromBuffer } from "file-type";
 import isURL from "./isurl";
+import mime2ext from "mime2ext";
 
 interface InstanceOptions {
   url: string;
@@ -13,35 +14,40 @@ interface InstanceOptions {
  * URL과 별도로 입력된 이름을 입력받아, 이름이 없다면 URL에서, 이름이 있다면 이름에서 파일 이름을 추출해주는 함수 (-> basename)
  */
 const getFilename = (url: string, name: string): string => {
-  const extract = (filename: string) => filename.split("/").at(-1);
+  const extract = (filename: string) => {
+    const basename = filename.split("/").at(-1);
+    const _filename = basename?.replace(/\.\w+$/, "") || "";
+    const _ext = basename?.match(/\w+$/)?.at(0) || "";
+    return {
+      filename: _filename,
+      ext: _ext,
+      basename: basename,
+    };
+  };
   const [urlName, nameName] = [url, name].map(extract);
-  return nameName ? nameName : urlName || "";
+
+  const filename = nameName.filename || urlName.filename || "";
+  const ext = urlName.ext || nameName.ext || "";
+
+  return ext.length > 0 ? `${filename}.${ext}` : `${filename}`;
 };
 
 /**
  * 파일 이름 추출 함수 (다운로드 시 사용, 더 정확한 파일 확장자 추론)
  */
-const getBasename = async (
-  url: string,
-  name: string,
-  file: Blob | ArrayBuffer
-) => {
-  if (file instanceof Blob) file = await file.arrayBuffer();
-  // 데이터 구조를 분석하여 확장자 추론
-  const inferencedMimeType = await fileTypeFromBuffer(file);
+const getBasename = async (url: string, name: string, file: Blob) => {
+  const filename = getFilename(url, name).replace(/\.\w$/, ""); // 파일 확장자 제거
+  const ext = mime2ext(file.type); // 원본 파일 타입을 통해 확장자로 변환
 
-  // 1. 이름이 있을 땐 이름에서 이름을 가져오고
-  // 2. 이름이 없을 땐 URL에서 이름을 추출해오고
-  const filename = getFilename(url, name);
-
-  // 3. 확장자는 Blob 객체를 통해 추정하여 입력하되, 없다면 파일 이름에서 추출 시도, 파일 이름에서도 확장자를 추론할 수 없다면 파일 이름만 달아서 내보내기
-  const ext = inferencedMimeType?.ext || "";
-
-  return ext.length > 0 ? `${filename}.${ext}` : `${filename}`;
+  return ext.length > 0 ? `${filename}.${ext}` : `${filename}`; // 합쳐서 반환
 };
 
 const createFetchInstance = (opts: InstanceOptions) => {
-  if (!(opts instanceof Object && isURL(opts.url))) return;
+  // if (!(opts instanceof Object && isURL(opts.url))) return new Error(``)
+  if (!(opts instanceof Object))
+    return new Error(`유효하지 않은 함수 인자가 입력되었습니다.`);
+  if (!isURL(opts.url))
+    return new Error(`유효하지 않은 URL 형식의 데이터가 입력되었습니다.`);
 
   let _header: Headers;
 
