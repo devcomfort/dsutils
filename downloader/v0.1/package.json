@@ -32,6 +32,7 @@
 		"dayjs": "^1.11.7",
 		"downloadjs": "^1.4.7",
 		"file-type": "^18.2.1",
+		"mime2ext": "^2.0.0",
 		"node-sass": "^8.0.0",
 		"radix-icons-svelte": "^1.2.1"
 	}
