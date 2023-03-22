@@ -44,6 +44,21 @@
   /** 로딩 상태 */
   let loading = false;
 
+  const downloadByIndex = async (index: number) => {
+    if (!(0 <= index && index < URLProfiles.length)) return;
+    const profile = URLProfiles[index];
+    const formatted_download_url = formatURL(profile.url);
+    if (formatted_download_url instanceof Error) return formatted_download_url;
+
+    const instance = createFetchInstance({
+      url: formatted_download_url,
+    });
+
+    if (instance instanceof Error) return instance;
+
+    return instance.download();
+  };
+
   const addURL = async () => {
     if (loading) return;
 
@@ -56,11 +71,10 @@
 
     const _filename = getFilename(formatted_download_url, filename);
 
-    // TODO : 오류 잡아서 반환하는 로직 추가
-    const sizeString =
-      (await createFetchInstance({
-        url: formatted_download_url,
-      })?.sizeAsString()) || byteSize(0);
+    const instance = createFetchInstance({ url: formatted_download_url });
+    if (instance instanceof Error) return instance;
+
+    const sizeString = (await instance.sizeAsString()) || byteSize(0);
 
     URLProfiles = [
       ...URLProfiles,
@@ -158,17 +172,20 @@
                     <Text lineClamp={1}>{profile.url}</Text>
                   </Grid.Col>
                   <Grid.Col span={3}>{profile.filename}</Grid.Col>
+                  <Grid.Col span={2}>
+                    <Text size={"sm"}>{profile.sizeString}</Text>
+                  </Grid.Col>
                   <Grid.Col span={1}>
                     <ActionIcon
-                      on:click={() => {
+                      on:click={async () => {
                         // TODO : 다운로드 로직 추가
+                        const download_response = await downloadByIndex(index);
+                        if (download_response instanceof Error)
+                          return addErrorNotification(download_response);
                       }}
                     >
                       <Download />
                     </ActionIcon>
-                  </Grid.Col>
-                  <Grid.Col span={2}>
-                    <Text size={"sm"}>{profile.sizeString}</Text>
                   </Grid.Col>
                   <Grid.Col span={1}>
                     <ActionIcon
