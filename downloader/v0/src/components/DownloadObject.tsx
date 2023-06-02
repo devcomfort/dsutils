@@ -3,7 +3,6 @@ import React, { FC, useEffect, useState } from "react";
 import DownloadCSS from "./Download.module.sass";
 
 import Skeleton from "react-loading-skeleton";
-import "../../../../node_modules/react-loading-skeleton/dist/skeleton.css";
 import { URLStructure, fetcher } from "../assets/download_handler";
 import { URLs as URLsState } from "../store";
 import { useRecoilState } from "recoil";
