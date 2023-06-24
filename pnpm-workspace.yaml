@@ -1,4 +1,6 @@
 packages:
   - "@types"
   # 서비스 모음
-  - "services"
+  - "services/*"
+  # 내부 라이브러리
+  - "libs/*"
