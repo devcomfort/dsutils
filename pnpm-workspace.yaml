@@ -1,5 +1,4 @@
 packages:
   - "@types"
-
-  # 강의 다운로더 (프로젝트)
-  - "downloader/v*"
+  # 서비스 모음
+  - "services"
