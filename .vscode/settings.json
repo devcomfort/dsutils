@@ -1,0 +1,7 @@
+{
+  "go.useLanguageServer": true,
+  "gopls": {
+    "completeUnimported": true,
+  },
+  "go.lintOnSave": "file"
+}
