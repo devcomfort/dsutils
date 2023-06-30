@@ -1,0 +1,10 @@
+{
+  "name": "eclass_authenticator",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "go build -o dist/eclass_authenticator main.go"
+  },
+  "keywords": [],
+  "author": ""
+}
