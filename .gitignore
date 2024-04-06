@@ -142,5 +142,5 @@ dist
 .pnp.*
 
 # pnpm
-pnpm-lock.yaml.turbo
+pnpm-lock.yaml
 .turbo
