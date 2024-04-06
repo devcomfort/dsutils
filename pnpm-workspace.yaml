@@ -1,6 +1,5 @@
 packages:
-  - "@types"
-  # 서비스 모음
-  - "services/*"
+  # 강의 다운로더
+  - "downloader"
   # 내부 라이브러리
   - "libs/*"
