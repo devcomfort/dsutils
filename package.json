@@ -1,5 +1,8 @@
 {
   "name": "dsutils",
   "type": "module",
-  "private": true
+  "private": true,
+  "scripts": {
+    "downloader": "pnpm --filter downloader"
+  }
 }
