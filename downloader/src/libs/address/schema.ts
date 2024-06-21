@@ -1,3 +1,8 @@
+import { tags } from "typia";
+
+type Hostname = string & tags.Format<"hostname">;
+type Url = string & tags.Format<"url">;
+
 /** 미러 호스트 프로필  */
 export interface IMirrorHost {
   /** 구분자; 학교 이름 등 */
@@ -6,13 +11,13 @@ export interface IMirrorHost {
    *
    * 예시: `["dongseo-cms.cdn.ntruss.com"]`
    */
-  compatibleHosts: string[];
+  compatibleHosts: Hostname[];
   /**
    * 호환되는 미러 호스트들
    *
    * 예시: `["dcms.dongseo.ac.kr"]`
    */
-  targetHosts: string[];
+  targetHosts: Hostname[];
 }
 
 export interface ITransformedHost {
@@ -41,7 +46,7 @@ export interface ITransformedHost {
    * // ]
    * ```
    */
-  transformedUrls: string[];
+  transformedUrls: Url[];
 }
 
 /** 미러 호스트 레지스트리 목록 */
