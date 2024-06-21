@@ -1,0 +1,34 @@
+import { isInt } from "radash";
+import prettyBytes from "pretty-bytes";
+
+class FileSizeViwer {
+  /** 바이트 단위 파일 크기 */
+  private rawFileSize: number;
+
+  constructor(rawFileSize: number) {
+    if (!isInt(rawFileSize))
+      throw new Error(
+        `[FileSizeViewer] 유효하지 않은 파일 크기입니다 (expected int, but got number)`
+      );
+    this.rawFileSize = rawFileSize;
+  }
+
+  /**
+   * human-readable하게 변환된 파일 크기를 반환합니다
+   *
+   * @see https://www.npmjs.com/package/pretty-bytes
+   */
+  prettified() {
+    return prettyBytes(this.rawFileSize);
+  }
+
+  setRawFileSize(rawFileSize: number) {
+    if (!isInt(rawFileSize))
+      throw new Error(
+        `[FileSizeViewer] 유효하지 않은 파일 크기입니다 (expected int, but got number)`
+      );
+    this.rawFileSize = rawFileSize;
+  }
+}
+
+export default FileSizeViwer;
