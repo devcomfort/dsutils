@@ -4,6 +4,7 @@ classDiagram
     -data: IMirrorHostRegistry
     +getData(): IMirrorHostRegistry
     -load() IMirrorHostRegistry
+    #validate(obj: object) typia.IValidation<IMirrorHostRegistry>
   }
 
   class Finder {
