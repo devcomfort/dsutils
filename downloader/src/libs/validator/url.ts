@@ -1,12 +1,6 @@
-import { z } from "zod";
+import typia, { tags } from "typia";
 
-export const URL = z.string().url({
-  message: "올바른 URL을 입력해주세요",
-});
+export type TURL = string & tags.Format<"url">;
 
-/**
- * 입력한 문자열이 URL 구조인지 검사합니다
- * @param url
- * @returns
- */
-export const isURL = (url: string): boolean => URL.safeParse(url).success;
+export const isURL = (url: string): url is TURL =>
+  typia.validate<TURL>(url).success;
