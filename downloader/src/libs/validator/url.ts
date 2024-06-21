@@ -5,8 +5,8 @@ export const URL = z.string().url({
 });
 
 /**
- * 올바른 구조의 URL 문자열을 입력했는지 검사합니다
+ * 입력한 문자열이 URL 구조인지 검사합니다
  * @param url
  * @returns
  */
-export const isURL = (url: string) => URL.safeParse(url).success;
+export const isURL = (url: string): boolean => URL.safeParse(url).success;
