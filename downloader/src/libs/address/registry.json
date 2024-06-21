@@ -1,0 +1,9 @@
+{
+  "mirrorHosts": [
+    {
+      "name": "동서대학교",
+      "compatibleHosts": ["dongseo-cms.cdn.ntruss.com"],
+      "targetHosts": ["dcms.dongseo.ac.kr"]
+    }
+  ]
+}
