@@ -9,7 +9,7 @@ import MirrorHostRegistry from "./registry.json";
  *
  * 로드 과정에서 즉시 검사를 수행하여, 유효하지 않은 부분이 발견되면 throw 합니다 (typia)
  */
-export class Loader {
+class Loader {
   private data: IMirrorHostRegistry | undefined = undefined;
 
   constructor() {
@@ -50,3 +50,5 @@ export class Loader {
     return typia.validate<IMirrorHostRegistry>(obj);
   }
 }
+
+export default Loader;

@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { Loader } from "./loader";
 import typia from "typia";
+import { describe, expect, it } from "vitest";
 import { IMirrorHostRegistry } from "./schema";
+import Loader from "./loader";
 
 describe("Loader 클래스 검증", () => {
   describe("Loader.getData() 메소드 검증", () => {
