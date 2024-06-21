@@ -22,10 +22,10 @@ describe("isURL 메소드 테스트", () => {
 
   it("유효하지 않은 URL 입력", () => {
     expect(isURL("www.google.com")).toBe(false);
+    expect(isURL("https:www.google.com")).toBe(false);
   });
 
   it("유효한 URL 입력", () => {
-    expect(isURL("https:www.google.com")).toBe(true);
     expect(isURL("https://www.google.com")).toBe(true);
   });
 });
