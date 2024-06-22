@@ -1,3 +1,4 @@
-export type { DownloadStatus } from "./types/download-status";
-export { SingleFileDownload } from "./single-file-download";
-export { FirstFileDownload } from "./first-file-download";
+export { default as DownloadHandler } from "./download-handler";
+export { default as FastestDownloadHandler } from "./fastest-download-handler";
+export { default as BulkDownloadHandler } from "./bulk-download-handler";
+export { default as parseFileSize } from "./parse-file-size";
