@@ -28,8 +28,10 @@ describe("Finder 클래스 테스트", () => {
       const validated = compatibleHosts.every((compatibleHost) =>
         typia.is<IMirrorHost>(compatibleHost)
       );
-      expect(validated && compatibleHosts.length > 0).toBe(true);
+      expect(validated).toBe(true);
+      expect(compatibleHosts.length).greaterThan(0);
     });
+
     it("유효하지 않은 URL의 탐색", () => {
       const randomUrl = typia.random<TURL>();
       const compatibleHosts = new Finder().findCompatibleMirrorHosts(randomUrl);
