@@ -1,6 +1,11 @@
 import { isInt } from "radash";
 import prettyBytes from "pretty-bytes";
 
+/**
+ * 파일 크기를 사람이 읽기 쉽도록 변환함
+ *
+ * @see https://www.npmjs.com/package/pretty-bytes `pretty-bytes` 라이브러리
+ */
 class FileSizeViwer {
   /** 바이트 단위 파일 크기 */
   private rawFileSize: number;
