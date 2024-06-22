@@ -3,7 +3,7 @@ import { Type, Minimum, Maximum } from "typia/lib/tags";
 
 import { DownloadRatio, DownloadState, Downloaded } from "./schema";
 import { Url } from "./schema/download-request";
-import FileSizeViwer from "../parser/FileSizeViewer";
+import FileSizeViwer from "../parser/file-size-viewer";
 import MetaDataLoader from "./metadata-loader";
 import { BehaviorSubject } from "rxjs";
 
