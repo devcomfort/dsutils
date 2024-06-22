@@ -10,13 +10,18 @@
     "prepare": "ts-patch install && typia patch"
   },
   "dependencies": {
+    "@kobalte/core": "^0.13.3",
     "@solidjs/router": "^0.13.6",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
     "lodash": "^4.17.21",
     "pretty-bytes": "^6.1.1",
     "radash": "^12.1.0",
     "remeda": "^2.2.0",
     "rxjs": "^7.8.1",
-    "solid-js": "^1.8.17"
+    "solid-js": "^1.8.17",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@ryoppippi/unplugin-typia": "npm:@jsr/ryoppippi__unplugin-typia@^0.4.14",
