@@ -25,6 +25,8 @@ describe("Finder 클래스 테스트", () => {
       const compatibleHosts = new Finder().findCompatibleMirrorHosts(
         compatibleUrl
       );
+
+      // NOTE: 호환되는 호스트 조회 결과 데이터가 모두 유효하고 길이가 1이상인지 검사함
       const validated = compatibleHosts.every((compatibleHost) =>
         typia.is<IMirrorHost>(compatibleHost)
       );
@@ -34,6 +36,7 @@ describe("Finder 클래스 테스트", () => {
 
     it("유효하지 않은 URL의 탐색", () => {
       const randomUrl = typia.random<TURL>();
+      // NOTE: 호환되지 않는 호스트의 조회 결과가 0개로 나오는 지 검사함
       const compatibleHosts = new Finder().findCompatibleMirrorHosts(randomUrl);
       expect(compatibleHosts.length).toEqual(0);
     });
