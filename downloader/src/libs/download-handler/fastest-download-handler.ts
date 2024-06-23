@@ -36,6 +36,7 @@ class FastestDownloadHandler implements Downloaded {
   public async download(force_rerun: boolean = false) {
     if (this.blob instanceof Blob && !force_rerun) return this.blob;
 
+    // NOTE: 최초로 성공적으로 다운로드를 완료하여 얻은 Blob 객체를 가져옴
     const downloaded = await Promise.any(
       this.handlers.map((handler) => handler.download(force_rerun))
     );
