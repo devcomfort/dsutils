@@ -3,6 +3,7 @@ import { trim } from "lodash/fp";
 import path from "path-browserify";
 
 import { DownloadRequest } from "../download-handler/schema";
+import { isURL } from "../validator/url";
 
 class URLHandler {
   /** `<URL>;<filename>` 구조의 문자열에서 데이터를 추출합니다
@@ -17,6 +18,9 @@ class URLHandler {
       );
 
     let [url, filename] = splitted;
+
+    if (!isURL(url))
+      throw new Error(`[URLHandler.parse] 유효하지 않은 URL이 입력되었습니다`);
 
     // NOTE: 파일 이름이 누락된 경우, URL에서 파일 이름을 추출하여 사용
     filename ??= URLHandler.basename(url);
