@@ -1,12 +1,14 @@
-import { Router, Route } from '@solidjs/router'
+import { Router, Route } from "@solidjs/router";
 
-import './App.css'
-import { Main } from './pages'
+import "./app.css";
+import { Main } from "./pages";
 
 function App() {
-  return <Router>
-    <Route path={"/"} component={Main}></Route>
-  </Router>
+  return (
+    <Router>
+      <Route path={"/"} component={Main}></Route>
+    </Router>
+  );
 }
 
-export default App
+export default App;
