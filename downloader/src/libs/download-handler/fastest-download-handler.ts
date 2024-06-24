@@ -1,7 +1,8 @@
 import { Observable, combineLatest, map } from "rxjs";
 import DownloadHandler from "./download-handler";
-import { DownloadRequest, Downloaded } from "./schema";
+import { Downloaded } from "./schema";
 import { max } from "lodash/fp";
+import { ITransformedHost } from "../address/schema";
 
 /** 복수 URL 중 가장 빠른 응답의 데이터를 처리하는 핸들러 */
 class FastestDownloadHandler implements Downloaded {
@@ -9,11 +10,14 @@ class FastestDownloadHandler implements Downloaded {
   private handlers: DownloadHandler[];
   public subject: Observable<number>;
 
-  constructor(requests: DownloadRequest[]) {
-    this.handlers = requests.map((request) => {
-      const { filename, url } = request;
-      return new DownloadHandler(url, filename ?? undefined);
-    });
+  constructor(requests: ITransformedHost[]) {
+    // NOTE: 복수의 미러 호스트 프로필 속 개별 주소에 요청을 보낸 후
+    //       가장 최초로 성공적인 응답을 한 객체를 사용합니다
+    this.handlers = requests
+      .map((host) => {
+        return host.transformedUrls.map((url) => new DownloadHandler(url));
+      })
+      .flat();
     this.subject = combineLatest(
       this.handlers.map((handler) => handler.subject)
     ).pipe(
@@ -27,10 +31,6 @@ class FastestDownloadHandler implements Downloaded {
           )
       )
     );
-  }
-
-  public subscribe(args: Parameters<(typeof this.subject)["subscribe"]>) {
-    return this.subject.subscribe(...args);
   }
 
   public async download(force_rerun: boolean = false) {

@@ -1,8 +1,7 @@
 import { isNullish } from "remeda";
 import { Type, Minimum, Maximum } from "typia/lib/tags";
 
-import { DownloadRatio, DownloadState, Downloaded } from "./schema";
-import { Url } from "./schema/download-request";
+import { DownloadRatio, DownloadState, Downloaded, Url } from "./schema";
 import FileSizeViwer from "../parser/file-size-viewer";
 import MetaDataLoader from "./metadata-loader";
 import { BehaviorSubject } from "rxjs";
@@ -33,8 +32,8 @@ class DownloadHandler
    * @param filename 파일 이름 (undefined인 경우, URL에서 추출하여 사용)
    * @param onRatioUpdated 진행도 갱신 콜백 함수
    */
-  constructor(url: Url, filename?: string) {
-    super(url, filename);
+  constructor(url: Url) {
+    super(url);
 
     // 파일 관련 변수들
     this.downloadedRatio = 0;
@@ -56,10 +55,6 @@ class DownloadHandler
     this.loadMetaData().then(() => {
       this.status = "initialized";
     });
-  }
-
-  public subscribe(args: Parameters<(typeof this.subject)["subscribe"]>) {
-    return this.subject.subscribe(...args);
   }
 
   /**

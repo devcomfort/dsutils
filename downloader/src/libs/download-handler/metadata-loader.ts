@@ -1,6 +1,5 @@
 import { Type, Minimum } from "typia/lib/tags";
-import { DownloadRequest, MetaData } from "./schema";
-import { Url } from "./schema/download-request";
+import { MetaData, Url } from "./schema";
 import { isInt } from "radash";
 import { isString } from "remeda";
 import parseFileSize from "./parse-file-size";
@@ -8,15 +7,13 @@ import parseFileSize from "./parse-file-size";
 /**
  * 메타데이터를 가져오는 클래스입니다
  */
-class MetaDataLoader implements MetaData, DownloadRequest {
+class MetaDataLoader implements MetaData {
   public url: Url;
-  public filename: string | null;
   public fileSize: (number & Type<"int64"> & Minimum<0>) | null;
   public mimeType: string | null;
 
-  constructor(url: Url, filename?: string) {
+  constructor(url: Url) {
     this.url = url;
-    this.filename = filename ?? null;
 
     this.fileSize = null;
     this.mimeType = null;
