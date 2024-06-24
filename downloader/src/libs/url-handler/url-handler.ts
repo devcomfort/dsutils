@@ -1,4 +1,4 @@
-import { pipe, split } from "remeda";
+import { join, pipe, split } from "remeda";
 import { trim } from "lodash/fp";
 import path from "path-browserify";
 
@@ -14,7 +14,7 @@ class URLHandler {
 
     if (splitted.length > 2)
       throw new Error(
-        `[URLHandler.parse] 유효하지 않은 구조입니다\nexpected "<URL>;<filename>", but got ${urlString}`
+        `[URLHandler.parse] "${urlString}"은 유효하지 않은 구조입니다`
       );
 
     let [url, filename] = splitted;
@@ -41,13 +41,14 @@ class URLHandler {
     const ext =
       path.extname(url).length > 0 ? path.extname(url) : path.extname(filename);
 
-    filename = path.join(
-      path.join(
+    filename = join(
+      [
         // 파일 이름 (확장자 제외, 예시: `"video.mp4"` -> `"video"`)
         path.basename(filename, path.extname(filename)),
         // 파일 확장자 (ext 변수 참조)
-        ext
-      )
+        ext,
+      ],
+      ""
     );
 
     return {
