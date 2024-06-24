@@ -53,10 +53,10 @@ class Registry {
     const compatibleMirrorHosts = this.getCompatibleHosts(url);
     const transformedHosts: ITransformedHost[] = compatibleMirrorHosts.map(
       (host) => {
-        const { name, compatibleHosts } = host;
+        const { name, targetHosts } = host;
         /** 기존 URL의 호스트 이름을 호환되는 미러 서버 호스트 이름으로 변환한 URL 배열 */
-        const transformedUrls = compatibleHosts.map((compatibleHost) => {
-          return new Transformer(url, compatibleHost).getTransformedUrl();
+        const transformedUrls = targetHosts.map((targetHost) => {
+          return new Transformer(url, targetHost).getTransformedUrl();
         });
 
         return {
