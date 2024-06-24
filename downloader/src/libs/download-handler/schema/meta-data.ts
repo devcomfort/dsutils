@@ -1,4 +1,5 @@
 import { tags } from "typia";
+import { Url } from ".";
 
 /**
  * 파일 메타 데이터 정보
@@ -6,6 +7,7 @@ import { tags } from "typia";
  * `HEAD` 메소드를 통해 데이터를 요청한 경우, 응답 결과를 이 형태로 저장합니다
  */
 export interface MetaData {
+  url: Url;
   /**
    * 파일 크기
    *

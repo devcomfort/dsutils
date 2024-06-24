@@ -1,7 +1,4 @@
-import { tags } from "typia";
-
-/** URL 타입 */
-export type Url = string & tags.Format<"url">;
+import { Url } from ".";
 
 /** 다운로드 요청 인터페이스 */
 export interface DownloadRequest {
