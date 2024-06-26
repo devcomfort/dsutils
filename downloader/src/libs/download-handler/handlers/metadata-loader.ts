@@ -1,8 +1,8 @@
 import { Type, Minimum } from "typia/lib/tags";
-import { MetaData, Url } from "./schema";
+import { MetaData, Url } from "../schema";
 import { isInt } from "radash";
 import { isString } from "remeda";
-import parseFileSize from "./parse-file-size";
+import parseFileSize from "../helper/parse-file-size";
 
 /**
  * 메타데이터를 가져오는 클래스입니다
