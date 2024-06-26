@@ -1,69 +1,46 @@
-import { SetStoreFunction, createStore } from "solid-js/store";
+import { createStore } from "solid-js/store";
 import { DownloadRequest } from "../download-handler/schema";
 import { tags } from "typia";
-import { difference, range } from "remeda";
 
 type Index = number & tags.Type<"int64">;
 
-/**
- * 다운로드 대기열 클래스
- *
- * NOTE: 명시적으로 싱글톤 패턴이 적용되지 않음
- * NOTE: Solid.js의 `createStore`를 사용하려다가 필요 없을 것 같아서 그냥 클래스로 구현함
- */
-class DownloadQueue {
-  private readonly queue: DownloadRequest[];
-  private setQueue: SetStoreFunction<DownloadRequest[]>;
+export const downloadQueue = (() => {
+  const [queue, setQueue] = createStore<DownloadRequest[]>([]);
+  const getQueue = () => queue;
+  const length = () => getQueue().length;
 
-  constructor() {
-    const [queue, setQueue] = createStore<DownloadRequest[]>([]);
-    this.queue = queue;
-    this.setQueue = setQueue;
-  }
+  /** 동일한 URL의 데이터를 제거함 */
+  const dropByUrl = (request: DownloadRequest) =>
+    setQueue((queue) => queue.filter((task) => task.url !== request.url));
 
-  /** 대기열에 새로운 요청을 추가함 */
-  public addRequest(request: DownloadRequest) {
-    /** 원본 배열 인덱스 */
-    const indexes = range(0, this.queue.length);
+  const enqueue = (request: DownloadRequest) => {
+    // 중복 요소를 제거함 (URL 기준)
+    // : 기존 데이터를 업데이트 하는 효과를 낼 수 있음
+    dropByUrl(request);
+    // 데이터를 삽입함
+    setQueue((queue) => [...queue, request]);
+  };
+  const dequeue = () => {
+    const _return = queue[0];
+    setQueue((queue) => queue.slice(1));
+    return _return;
+  };
 
-    /** 중복 요소 인덱스 (URL 기준)
-     * request.url과 같은 url을 가진 요청 인덱스를 저장함
-     */
-    const duplicatedIndexes = this.queue.reduce<number[]>(
-      (returnValue, currentValue, index) => {
-        if (currentValue.url === request.url) return [...returnValue, index];
-        return returnValue;
-      },
-      []
-    );
+  const dropByIndex = (idx: Index) => {
+    const _return = queue.at(idx);
+    // idx 요소 제거
+    setQueue((queue) => [...queue.slice(0, idx), ...queue.slice(idx + 1)]);
+    return _return;
+  };
 
-    /** 중복 인덱스를 제거한 인덱스 */
-    const remainIndexes = difference(indexes, duplicatedIndexes);
-    /** 중복을 제거한 배열 */
-    const cleanedQueue = remainIndexes.map((idx) => this.queue[idx]);
-    /** 새로운 요청을 추가한 큐 배열 */
-    const newQueue = [...cleanedQueue, request];
-
-    // 대기열 정보 업데이트
-    this.setQueue(newQueue);
-  }
-
-  /** 인덱스로 지정된 요청을 제거함 */
-  public dropRequestByIndex(idx: Index) {
-    if (0 <= idx && idx < this.queue.length)
-      throw new Error(`[DownloadQueue] ${idx}는 유효한 인덱스가 아닙니다`);
-
-    const newQueue = [
-      ...this.queue.slice(0, idx),
-      ...this.queue.slice(idx + 1),
-    ];
-    this.setQueue(newQueue);
-  }
-
-  /** 대기열 데이터를 호추랗ㅁ */
-  public getQueue() {
-    return this.queue;
-  }
-}
-
-export default DownloadQueue;
+  return {
+    // 기존 상태들
+    getQueue,
+    setQueue,
+    // 추가된 메소드들
+    enqueue,
+    dequeue,
+    dropByIndex,
+    length,
+  };
+})();
