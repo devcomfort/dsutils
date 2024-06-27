@@ -59,8 +59,6 @@ const runTask = () => {
 };
 
 /** 하위 스레드 이벤트 리스너 */
-// TODO: index 반영하는 작업하기 (wrapper 함수 써야 할 듯, Currying이나)
-//       어떤 worker의 유휴 상태를 변경할 지, 작업해야 함
 type WorkerOnMessage = Exclude<Worker["onmessage"], null>;
 const onChildWorkerMessage =
   (idx: Int32) =>
