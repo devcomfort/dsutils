@@ -63,7 +63,7 @@ class DownloadHandler
 
     const result = await retry(
       {
-        times: 3,
+        times: 5,
       },
       async (exit) => {
         const response = await fetch(this.url, {
