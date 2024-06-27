@@ -1,4 +1,3 @@
-import moment from "moment";
 import { tryit } from "radash";
 import {
   conditional,
@@ -18,7 +17,6 @@ import { For, Show, createSignal } from "solid-js";
 import { URLHandler } from "~/libs/url-handler";
 
 import { AiTwotoneWarning } from "solid-icons/ai";
-import { zipSync } from "fflate/browser";
 // NOTE: https://www.npmjs.com/package/file-saver
 import { saveAs } from "file-saver";
 
@@ -69,47 +67,34 @@ const makeAlert = (ms: number = 3000) => {
   }, ms);
 };
 
+const stages = ["initializing", "downloading", "done"];
+const stageLabels = ["초기화 중", "다운로드 중", "완료됨"];
 // NOTE: 다운로드 진행 상태
 //       "": 진행 중이 아님
 //       "initializing": 초기화 중
 //       "downloading": 파일을 다운로드 하는 중
-//       "zipping": 압축 중
 //       "done": 작업 완료
 const [state, setState] = createSignal<
-  "initializing" | "downloading" | "zipping" | "done" | ""
+  "initializing" | "downloading" | "done" | ""
 >("");
 
 const stateLabel = () => {
-  switch (state()) {
-    case "":
-      return "";
-    case "initializing":
-      return "초기화 중";
-    case "downloading":
-      return "다운로드 중";
-    case "zipping":
-      return "압축 중";
-    case "done":
-      return "완료됨";
-  }
+  const index = stages.indexOf(state());
+  if (index < 0) return "";
+  return stageLabels.at(index)!;
 };
 /** 다운로드 진행 단계 (0~3) */
 const stage = () => {
-  switch (state()) {
-    case "":
-    case "initializing":
-      return 0;
-    case "downloading":
-      return 1;
-    case "zipping":
-      return 2;
-    case "done":
-      return 3;
-  }
+  const index = stages.indexOf(state());
+  if (index < 0) return 0;
+  return index;
 };
 
 const [ratio, setRatio] = createSignal<Ratios>([]);
 const download = () => {
+  // TODO: Worker 생성자를 import 하기 쉽도록 패키지/모듈/디렉토리 구조 개선하기 (코드도 개선해야함)
+  // "~/libs/download-handler/download-worker/workers/download-worker?worker" 대신
+  // import {DownloadWorker} from "~/libs/download-worker" 형태로 사용할 수 있도록 패키지/모듈/폴더 구조 개선하기 (물론 코드도 개선해야함)
   const worker = new DownloadWorker();
 
   setState("initializing");
@@ -128,6 +113,7 @@ const download = () => {
   const requests = {
     type: "multiple-request",
     message: _queue.map((request) => ({ ...request })),
+    poolSize: 4,
   } satisfies IMultipleRequest;
 
   worker.onerror = (ev) => {
@@ -154,48 +140,24 @@ const download = () => {
           )
         );
 
-        setState("zipping");
-
-        /** 압축할 폴더 구조 */
-        let dir: Record<string, Uint8Array> = {};
-        const zipFilename = moment().format("YYYYMMDD");
-
-        // TODO: Worker.onmessage는 비동기 함수 처리 못 함
-        // 비동기로 처리해야 하는 부분은 부분적으로 함수화 시켜서 처리해야 가독성이 좋을 듯
-        // Blob -> ArrayBuffer -> Uint8Array 하는 부분만 봐도 함수화가 조금 까다로운 편
-        const buffers = await Promise.all(
-          map(results, (blob) => blob?.arrayBuffer())
-        );
-        const uint8Arrays = await Promise.all(
-          map(buffers, (buffer) =>
-            isNullish(buffer) ? undefined : new Uint8Array(buffer)
-          )
-        );
+        // TODO: Worker 코드들 모두 부분적으로 함수화하여 재작성하기 (가독성 목적)
+        //       Worker.prototype.onmessage에는 비동기 함수를 입력할 수 없음
 
         const filenames = _queue.map((req) => req.filename);
-        const pairs = zip(uint8Arrays, filenames);
+        const pairs = zip(results, filenames);
 
-        console.log(`[index.tsx] pairs:`);
-        console.table(pairs);
-
-        pairs.forEach(([uint8Array, filename]) => {
+        // TODO: 이미 다운로드 한 파일은 선택적/전체 단위로 캐싱된 데이터를 다시 다운로드 할 수 있도록 지원해야함
+        // TODO: 재시도 횟수를 조정할 수 있도록 지원해야함
+        //       재시도 횟수는 "download-handler.ts"에서 사용된 radash의 retry 함수를 참조하면 됨
+        pairs.forEach(([blob, filename]) => {
           // 유효하지 않은 데이터(오류 데이터 등)는 무시
-          if (isNullish(uint8Array)) return;
-          dir[filename!] = uint8Array;
+          if (isNullish(blob)) return;
+          // TODO: FileSystem Access API를 통해 사용자가 지정한 디렉토리에 파일을 다운로드하도록 변경
+          saveAs(blob, filename!);
+          console.log(blob, filename!);
         });
 
-        /** 압축된 파일 객체 */
-        const zippedFile = zipSync(
-          {
-            [zipFilename]: dir,
-          },
-          { level: 6, mem: 10 }
-        );
-
         setState("done");
-
-        // 파일 이름 생성 (예시: "20240624") 및 파일 다운로드 처리
-        saveAs(new Blob([zippedFile]), `${zipFilename}.zip`);
 
         console.warn(`[index.ts] terminate worker...`);
         worker.terminate();
@@ -353,7 +315,7 @@ export function Main() {
                     <Progress
                       value={stage()}
                       minValue={0}
-                      maxValue={3}
+                      maxValue={stages.length}
                       getValueLabel={({ value, max }) =>
                         `${max}개 중 ${value}개 작업 완료됨`
                       }
